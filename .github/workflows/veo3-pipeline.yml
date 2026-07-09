@@ -1,0 +1,52 @@
+name: Veo3 Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: "ID del job (dal foglio VEO3_JOBS)"
+        required: true
+      personaggio_nome:
+        required: true
+      personaggio_descrizione:
+        required: true
+      personaggio_foto_url:
+        description: "URL pubblico della foto (servito dal webapp DarIA)"
+        required: true
+      scene_json:
+        description: "JSON con i 3 prompt delle scene"
+        required: true
+      callback_url:
+        description: "URL del webapp DarIA da chiamare a fine lavoro"
+        required: true
+
+jobs:
+  genera-e-monta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installa dipendenze
+        working-directory: scripts
+        run: npm install
+
+      - name: Esegui pipeline Veo3 (genera, attende, monta, carica, notifica)
+        working-directory: scripts
+        env:
+          KIE_API_KEY: ${{ secrets.KIE_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          JOB_ID: ${{ github.event.inputs.job_id }}
+          PERSONAGGIO_NOME: ${{ github.event.inputs.personaggio_nome }}
+          PERSONAGGIO_DESCRIZIONE: ${{ github.event.inputs.personaggio_descrizione }}
+          PERSONAGGIO_FOTO_URL: ${{ github.event.inputs.personaggio_foto_url }}
+          SCENE_JSON: ${{ github.event.inputs.scene_json }}
+          CALLBACK_URL: ${{ github.event.inputs.callback_url }}
+        run: node veo3_worker.js
