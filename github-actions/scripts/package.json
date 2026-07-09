@@ -1,9 +1,0 @@
-{
-  "name": "veo3-worker",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Worker eseguito da GitHub Actions: genera 3 clip con Veo3 (via kie.ai), le monta con ffmpeg, carica il risultato su Drive e notifica DarIA.",
-  "dependencies": {
-    "googleapis": "^140.0.0"
-  }
-}
